@@ -413,10 +413,10 @@ It covers the complete ordered dependency chain — EKS cluster, EBS CSI driver,
 <div align="center">
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/sarthak-singh-a0aa62322">
+  <a href="https://www.linkedin.com/in/ahmad-a-806237241/">
     <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
   </a>
-  <a href="https://github.com/Sarthakx67">
+  <a href="https://github.com/ahmad24mliwala/">
     <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" />
   </a>
 </p>
