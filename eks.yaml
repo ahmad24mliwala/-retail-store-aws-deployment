@@ -1,0 +1,15 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: retail-store-cluster
+  region: ap-south-1
+  version: "1.35"
+
+managedNodeGroups:
+  - name: retail-store-nodes
+    instanceType: t3.medium
+    desiredCapacity: 3
+    minSize: 2
+    maxSize: 5
+    volumeSize: 20
