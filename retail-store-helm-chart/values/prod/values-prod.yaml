@@ -1,13 +1,37 @@
-# Global ENV
+# ============================================================
+# RETAIL STORE - PRODUCTION VALUES
+# Environment: AWS EKS Production
+# ============================================================
+
+
+# ============================================================
+# GLOBAL CONFIGURATION
+# ============================================================
+
 global:
   environment: prod
+
+
+# ============================================================
 # DYNAMODB SERVICE
+# ============================================================
+# Local/in-cluster DynamoDB is disabled in production.
+# Cart uses AWS DynamoDB in ap-south-1 instead.
+
 retail-store-dynamodb:
   enabled: false
+
+
+# ============================================================
 # CART SERVICE
+# ============================================================
+
 retail-store-cart:
+
   image:
-    tag: v2 # Use dev-specific image tags
+    repository: ahmad2001/retail-store-cart
+    tag: v2
+
   resources:
     limits:
       cpu: 500m
@@ -15,15 +39,29 @@ retail-store-cart:
     requests:
       cpu: 200m
       memory: 512Mi
+
+  # Production authentication method:
+  # IRSA = IAM Roles for Service Accounts
+  # No static AWS access keys are stored inside the Pod.
   aws:
     authMethod: irsa
+
   serviceAccount:
     create: true
     name: cart-sa
     roleArn: arn:aws:iam::118051225085:role/cart-dynamodb-role
+
+
+# ============================================================
+# CATALOG SERVICE
+# ============================================================
+
 retail-store-catalog:
+
   image:
-    tag: v1
+    repository: ahmad2001/retail-store-catalog
+    tag: v2
+
   resources:
     limits:
       cpu: 500m
@@ -31,9 +69,18 @@ retail-store-catalog:
     requests:
       cpu: 200m
       memory: 512Mi
+
+
+# ============================================================
+# CHECKOUT SERVICE
+# ============================================================
+
 retail-store-checkout:
+
   image:
-    tag: v1
+    repository: ahmad2001/retail-store-checkout
+    tag: v2
+
   resources:
     limits:
       cpu: 500m
@@ -41,9 +88,18 @@ retail-store-checkout:
     requests:
       cpu: 200m
       memory: 512Mi
+
+
+# ============================================================
+# ORDERS SERVICE
+# ============================================================
+
 retail-store-orders:
+
   image:
-    tag: v1
+    repository: ahmad2001/retail-store-orders
+    tag: v2
+
   resources:
     limits:
       cpu: 500m
@@ -51,9 +107,18 @@ retail-store-orders:
     requests:
       cpu: 200m
       memory: 512Mi
+
+
+# ============================================================
+# UI SERVICE
+# ============================================================
+
 retail-store-ui:
+
   image:
-    tag: v1
+    repository: ahmad2001/retail-store-ui
+    tag: v2
+
   resources:
     limits:
       cpu: 500m
@@ -61,34 +126,3 @@ retail-store-ui:
     requests:
       cpu: 200m
       memory: 512Mi
-  service:
-    type: LoadBalancer
-# MYSQL DATABASE
-retail-store-mysql:
-  replicaCount: 1
-  persistence:
-    storageClass: ebs-sc
-    size: 5Gi
-  resources:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: 500m
-      memory: 1Gi
-  secrets:
-    rootPassword: password
-    userPassword: password
-# POSTGRESQL DATABASE
-retail-store-postgresql:
-  replicaCount: 1
-  persistence:
-    storageClass: ebs-sc
-    size: 5Gi
-  resources:
-    requests:
-      cpu: 200m
-      memory: 512Mi
-    limits:
-      cpu: 500m
-      memory: 1Gi
