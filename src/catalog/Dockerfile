@@ -13,9 +13,9 @@ RUN go mod download
 # Copy source
 COPY . .
 
-# Build WITH CGO ENABLED
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
-    go build -o app
+# Build with CGO enabled.
+# Architecture is provided by Docker/BuildKit instead of hard-coding amd64.
+RUN CGO_ENABLED=1 go build -o app
 
 # ---------- RUNTIME STAGE ----------
 FROM alpine:3.20
