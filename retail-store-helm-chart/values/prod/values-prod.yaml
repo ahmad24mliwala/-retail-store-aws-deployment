@@ -15,8 +15,8 @@ global:
 # ============================================================
 # DYNAMODB SERVICE
 # ============================================================
-# Local/in-cluster DynamoDB is disabled in production.
-# Cart uses AWS DynamoDB in ap-south-1 instead.
+# Disable local/in-cluster DynamoDB in production.
+# Cart connects directly to AWS DynamoDB using IRSA.
 
 retail-store-dynamodb:
   enabled: false
@@ -33,16 +33,15 @@ retail-store-cart:
     tag: v2
 
   resources:
-    limits:
-      cpu: 500m
-      memory: 1024Mi
     requests:
       cpu: 200m
       memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1024Mi
 
-  # Production authentication method:
-  # IRSA = IAM Roles for Service Accounts
-  # No static AWS access keys are stored inside the Pod.
+  # AWS authentication through IAM Roles for Service Accounts.
+  # No static AWS credentials are stored inside the container.
   aws:
     authMethod: irsa
 
@@ -63,12 +62,12 @@ retail-store-catalog:
     tag: v2
 
   resources:
-    limits:
-      cpu: 500m
-      memory: 1024Mi
     requests:
       cpu: 200m
       memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1024Mi
 
 
 # ============================================================
@@ -82,12 +81,12 @@ retail-store-checkout:
     tag: v2
 
   resources:
-    limits:
-      cpu: 500m
-      memory: 1024Mi
     requests:
       cpu: 200m
       memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1024Mi
 
 
 # ============================================================
@@ -101,17 +100,19 @@ retail-store-orders:
     tag: v2
 
   resources:
-    limits:
-      cpu: 500m
-      memory: 1024Mi
     requests:
       cpu: 200m
       memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1024Mi
 
 
 # ============================================================
 # UI SERVICE
 # ============================================================
+# Production UI is exposed externally through an AWS
+# LoadBalancer instead of the development NodePort service.
 
 retail-store-ui:
 
@@ -120,9 +121,82 @@ retail-store-ui:
     tag: v2
 
   resources:
-    limits:
-      cpu: 500m
-      memory: 1024Mi
     requests:
       cpu: 200m
       memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+
+  service:
+    type: LoadBalancer
+
+
+# ============================================================
+# MYSQL DATABASE
+# ============================================================
+# MySQL stores Catalog data.
+# Persistent storage is dynamically provisioned using AWS EBS.
+
+retail-store-mysql:
+
+  replicaCount: 1
+
+  persistence:
+    storageClass: ebs-sc
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  secrets:
+    rootPassword: password
+    userPassword: password
+
+
+# ============================================================
+# POSTGRESQL DATABASE
+# ============================================================
+# PostgreSQL uses persistent AWS EBS storage.
+
+retail-store-postgresql:
+
+  replicaCount: 1
+
+  persistence:
+    storageClass: ebs-sc
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  secrets:
+    postgresPassword: password
+
+
+# ============================================================
+# REDIS
+# ============================================================
+
+retail-store-redis:
+
+  replicaCount: 1
+
+
+# ============================================================
+# RABBITMQ
+# ============================================================
+
+retail-store-rabbitmq:
+
+  replicaCount: 1
