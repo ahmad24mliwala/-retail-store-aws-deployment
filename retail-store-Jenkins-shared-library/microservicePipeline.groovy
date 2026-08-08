@@ -1,36 +1,98 @@
 def call(Map config) {
 
     pipeline {
-        agent { label config.agent ?: 'AGENT-1' }
+
+        agent {
+            label config.agent ?: 'AGENT-1'
+        }
+
+        options {
+            timestamps()
+            disableConcurrentBuilds()
+        }
 
         stages {
+
+            /*
+             * ================================================
+             * STAGE 1 — DETECT APPLICATION VERSION
+             * ================================================
+             */
             stage('Detect Version') {
+
                 steps {
-                    detectVersion(service: config.service, type: config.type)
+
+                    detectVersion(
+                        service: config.service,
+                        type: config.type
+                    )
                 }
             }
 
+
+            /*
+             * ================================================
+             * STAGE 2 — BUILD AND PUSH DOCKER IMAGE
+             * ================================================
+             */
             stage('Build & Push Image') {
+
                 steps {
-                    dockerBuildPush(service: config.service)
+
+                    dockerBuildPush(
+                        service: config.service
+                    )
                 }
             }
-            stage('Checkout Helm Repo') {
+
+
+            /*
+             * ================================================
+             * STAGE 3 — UPDATE GITOPS HELM VALUES
+             * ================================================
+             *
+             * Jenkins updates values-prod.yaml.
+             *
+             * Argo CD will later detect the Git commit and
+             * synchronize the desired state to Amazon EKS.
+             */
+            stage('Update GitOps Repository') {
+
                 steps {
-                    dir('helm-repo') {
-                        git url: 'https://github.com/Sarthakx67/retail-store-aws-deployment.git', branch: 'main'
-                    }
-                }
-            }
-            stage('Deploy') {
-                steps {
+
                     deployK8s(
                         service: config.service,
                         version: env.VERSION,
-                        namespace: config.namespace,
-                        env: config.env
+                        environment: config.environment ?: 'prod'
                     )
                 }
+            }
+        }
+
+
+        /*
+         * ================================================
+         * PIPELINE RESULT
+         * ================================================
+         */
+        post {
+
+            success {
+
+                echo "=============================================="
+                echo "CI Pipeline Successful"
+                echo "Service : ${config.service}"
+                echo "Version : ${env.VERSION}"
+                echo "Image   : ${env.IMAGE}"
+                echo "=============================================="
+            }
+
+            failure {
+
+                echo "=============================================="
+                echo "CI Pipeline Failed"
+                echo "Service : ${config.service}"
+                echo "=============================================="
             }
         }
     }

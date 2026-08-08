@@ -3,6 +3,5 @@
 microservicePipeline(
     service: "cart",
     type: "maven",
-    namespace: "prod",
-    env: "eks"
+    environment: "prod"
 )

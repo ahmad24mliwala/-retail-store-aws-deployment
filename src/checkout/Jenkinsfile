@@ -3,6 +3,5 @@
 microservicePipeline(
     service: "checkout",
     type: "node",
-    namespace: "prod",
-    env: "eks"
+    environment: "prod"
 )
