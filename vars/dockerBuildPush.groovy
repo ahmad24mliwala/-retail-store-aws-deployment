@@ -30,7 +30,7 @@ def call(Map config) {
      */
     withCredentials([
         usernamePassword(
-            credentialsId: 'dockerhub-creds',
+            credentialsId: 'dockerhub-credentials',
             usernameVariable: 'DOCKERHUB_USER',
             passwordVariable: 'DOCKERHUB_PASS'
         )
