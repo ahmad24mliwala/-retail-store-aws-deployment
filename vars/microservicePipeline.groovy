@@ -2,9 +2,7 @@ def call(Map config) {
 
     pipeline {
 
-        agent {
-            label config.agent ?: 'AGENT-1'
-        }
+        agent any
 
         options {
             timestamps()
